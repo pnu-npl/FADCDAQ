@@ -1,0 +1,62 @@
+channel mapping
+16
+15
+14
+13
+12
+11
+10
+9
+8
+7
+6
+5
+4
+3
+2
+1
+16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1
+
+<y channels>
+
+Threshold applied for y-channels(1~16): -10mV
+Unit in Hz
+Measure for 1 second
+
+ch1: 250~280 
+ch2: 4~6
+ch3: 4~6
+ch4: 360~380
+ch5: 360~380
+ch6: 900~940
+ch7: 1100~1200
+ch8: 600~630
+ch9: 2500~2600 -> This channel seems to have some issues...Trigger rate jumps alot
+ch10: 1800~1900
+ch11: 5400~5500
+ch12: 7800~7900
+ch13: 80~100 
+ch14: 140~150
+ch15: 10~15 -> Unstable. Noise is large compared with other channels
+ch16: 10~15
+
+<x channels>
+Threshold applied: -90mV 
+Measure for 1 second
+
+ch1: 10~15
+ch2: 500~520
+ch3: 1700~1800
+ch4: 1400~1500
+ch5: 150~170
+ch6: 4500~4600 
+ch7: 4200~4300
+ch8: 1000~1200
+ch9: 770~800 
+ch10: 12900~13000
+ch11: 1360~1400
+ch12: 2600~2700
+ch13: 1350~1390
+ch14: 1570~1600
+ch15: 520~530
+ch16: 28~33 

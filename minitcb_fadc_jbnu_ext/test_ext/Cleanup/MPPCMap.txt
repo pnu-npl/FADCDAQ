@@ -1,0 +1,20 @@
+<Physical MPPC map>
+MPPC ch number assigned to be increaded from right to left
+
+[Assigned]	[tested]
+1		1
+2		2
+3		3
+4		4	
+5		8
+6		7	
+7		6	
+8		5
+9		12	
+10		11
+11		10
+12		9	
+13		13	
+14		14
+15		15
+16		16

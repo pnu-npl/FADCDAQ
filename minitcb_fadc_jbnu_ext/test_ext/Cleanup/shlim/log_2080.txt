@@ -1,0 +1,110 @@
+MINITCB_V2
+- Coincidence width        : 32
+- Multiplicity threshold   : 1
+- Prescale on trig input   : 1
+- Ped. trig interval (ms)  : 1
+- Trigger mode (TCB)       : 8
+
+NKFADC500 (mID: 1) found @ minitcb 1 
+ch1 calibration delay = 17
+ch2 calibration delay = 14
+ch3 calibration delay = 11
+ch4 calibration delay = 10
+DRAM(0) is aligned, delay = 5
+DRAM(1) is aligned, delay = 6
+DRAM(2) is aligned, delay = 4
+DRAM(3) is aligned, delay = 5
+DRAM(4) is aligned, delay = 4
+DRAM(5) is aligned, delay = 4
+DRAM(6) is aligned, delay = 4
+DRAM(7) is aligned, delay = 3
+FADC (mID: 1)
+- DRAM_ON                  : 1
+- Recording length         : 16
+- Trigger LUT value        : FFFE
+- Local trigger on         : 0
+- ADC mode                 :    1    1    1    1
+- ADC offset               : 3000 3000 3000 3000
+- Pedestal                 : 3191 3180 3176 3174
+- Coincidence width        :   32   32   32   32
+- Wavefrom delay           :  480  480  480  480
+- Input pulse polarity     :    0    0    0    0    0 (TDC)
+- Pulse count interval (ns):   32   32   32   32
+- Pulse count threshold    :    1    1    1    1
+- Pulse width threshold    :  100  100  100  100
+- Peak sum width           :    2    2    2    2
+- Trigger deadtime (ns)    :    0    0    0    0
+- Trigger mode (FADC)      :    1    1    1    1
+- Discrimination threshold :  100  100  100  100
+- Zero suppression         :    0    0    0    0
+MINITCB_V2
+- Coincidence width        : 32
+- Multiplicity threshold   : 1
+- Prescale on trig input   : 1
+- Ped. trig interval (ms)  : 1
+- Trigger mode (TCB)       : 8
+
+NKFADC500 (mID: 2) found @ minitcb 2 
+ch1 calibration delay = 14
+ch2 calibration delay = 11
+ch3 calibration delay = 11
+ch4 calibration delay = 8
+DRAM(0) is aligned, delay = 6
+DRAM(1) is aligned, delay = 7
+DRAM(2) is aligned, delay = 6
+DRAM(3) is aligned, delay = 6
+DRAM(4) is aligned, delay = 5
+DRAM(5) is aligned, delay = 5
+DRAM(6) is aligned, delay = 4
+DRAM(7) is aligned, delay = 4
+FADC (mID: 2)
+- DRAM_ON                  : 1
+- Recording length         : 16
+- Trigger LUT value        : FFFE
+- Local trigger on         : 0
+- ADC mode                 :    1    1    1    1
+- ADC offset               : 3000 3000 3000 3000
+- Pedestal                 : 3177 3160 3150 3161
+- Coincidence width        :   32   32   32   32
+- Wavefrom delay           :  480  480  480  480
+- Input pulse polarity     :    0    0    0    0    0 (TDC)
+- Pulse count interval (ns):   32   32   32   32
+- Pulse count threshold    :    1    1    1    1
+- Pulse width threshold    :  100  100  100  100
+- Peak sum width           :    2    2    2    2
+- Trigger deadtime (ns)    :    0    0    0    0
+- Trigger mode (FADC)      :    1    1    1    1
+- Discrimination threshold :  100  100  100  100
+- Zero suppression         :    0    0    0    0
+MINITCB_V2
+- Coincidence width        : 32
+- Multiplicity threshold   : 1
+- Prescale on trig input   : 1
+- Ped. trig interval (ms)  : 1
+- Trigger mode (TCB)       : 8
+
+JBNU_DAQ (mID: 3) found @ minitcb 3 
+mid = 3 : ADC is aligned.
+mid = 3 : DRAM is aligned.
+DAQ[3] temperature ch1 = 12.489480
+DAQ[3] temperature ch2 = 13.563720
+DAQ[3] high voltage ch1 = 46.832615 V
+DAQ[3] high voltage ch2 = 46.832615 V
+DAQ[3] discriminator thresholds for ch01 - ch08 = 100 100 100 100 100 100 100 100 
+DAQ[3] discriminator thresholds for ch09 - ch16 = 100 100 100 100 100 100 100 100 
+DAQ[3] discriminator thresholds for ch17 - ch24 = 100 100 100 100 100 100 100 100 
+DAQ[3] discriminator thresholds for ch25 - ch32 = 100 100 100 100 100 100 100 100 
+DAQ[3] multiplicity threshold = 2
+DAQ[3] coincidence width = 96 ns
+DAQ[3] gate width        = 2 us
+DAQ[3] input delay       = 992 ns
+DAQ[3] peak sum width    = 496 ns
+DAQ[3] zero suppression       = 0
+DAQ[3] waveform prescale      = 1
+DAQ[3] pedestal for ch01 - ch08 = 1450 1528 1576 1484 1609 1610 1510 1628 
+DAQ[3] pedestal for ch09 - ch16 = 1623 1461 1344 1629 1420 1414 1384 1387 
+DAQ[3] pedestal for ch17 - ch24 = 1609 1716 1399 1585 1401 1261 1436 1813 
+DAQ[3] pedestal for ch25 - ch32 = 1746 1648 1747 1402 1707 1560 1663 1656 
+
+TCB/FADC initialized!
+

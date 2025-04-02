@@ -1,0 +1,75 @@
+- runs 2000 ~ 2003	: logic module disc. thr 50 mV (ch1)
+---------------------------------------------------------------------
+- Mar. 6, 18:05		: logic module disc. thr changed to 100 mV (ch1)
+- Mar. 6, 19:37		: changed jbnu_daq thr from 200 to 100 (next run: 2011)
+- Mar. 6, 20:01		: changed nkfadc thr from 200 to 100 (next run: 2012)
+- runs 2004 ~ 2013	: logic module disc. thr 100 mV (ch1)
+---------------------------------------------------------------------
+- Mar. 6, 21:36		: logic module disc. thr 50 mV (ch2); FADC disc. thr 100; JBNU disc. thr 100
+					: changed nkfadc settings: fPOL (1 -> 0 = from pos. to neg.)
+					: fADCOFF: 3000 -> 3500
+					: next run: 2014
+- Mar. 6, 22:07		: change jbnu_daq gate_width from 8 to 1; next run: 2015
+- Mar. 6, 22:20		: logic module channel changed to ch3 (disc. thr: 50 mV), next run: 2016
+---------------------------------------------------------------------
+- Mar. 6, 22:25		: jbnu_daq, gate_with: 8->4; input_delay: 4000->2000; next run: 2017
+- Mar. 6, 23:21		: nkfadc, fADCOFF: 3500 -> 3000; next run: 2020
+---------------------------------------------------------------------
+- Mar. 7, 10:01		: logic module disc. thr 50 mV, ch1; next run: 2021
+- runs 2021 ~ 2023	: seems FADC mid1_ch1 connection is bad
+- Mar. 7, 10:26		: reconnected FADC mid1_ch1; reset all; moved sc2 to FADC mid2_ch1; next run: 2024
+- Mar. 7, 11:18		: reverted jbnu_daq gate width (4 -> 8) and input delay (2000 -> 4000); next run: 2028
+---------------------------------------------------------------------
+- Mar. 7, 11:39		: changed FADC rcording length from 512 ns to 8 us; next run: 2030
+- Mar. 7, 11:54		: changed FADC RL (8 us -> 1 ns); jbnu_daq gate width (8 us -> 1 us) and delay (4000 -> 500)
+					: next run: 2031
+- Mar. 7, 12:03		: changed nkfadc delays from 100 -> 200; next run: 2032
+- Mar. 7, 12:28		: long run (10 mins); next run: 2033
+- Mar. 7, 12:47		: 2 mins run; changed FADC RL = 16 us, jbnu_daq gate with = 16 us; next run: 2034
+- Mar. 7, 13:00		: same, 10 mins run; next run: 2035
+- Mar. 7, 13:30		: same, 10 mins run; next run: 2036
+- Mar. 7, 13:43		: roll back to 2 min runs; FADC RL = 16 us, jbnu_daq GW = 16 us, jbnu_iDLY = GW/2;
+					: next run: 2037
+---------------------------------------------------------------------
+- Mar. 7, 14:00		: 16 us setting makes trouble when drawing? chnaged both fadc/jbnu to 8 us; next run: 2038
+					: even 8 us catches multiple beam (? hit? ~5-ish) structure
+---------------------------------------------------------------------
+- Mar. 7, 14:12		: changed FADC RL and jbnu_daq GW to 1 us, jbnu_IDLY to 5000 ns; 10 mins run; next run: 2039
+					: what??? 2039 is completely screwed up - human bug - resolved; next run: 2040
+					: it seems long data taking can cause curruption in the dat file (FADC 2040 cannot use)
+					: roll back to 2 mins run; next run: 2041
+- Mar. 7, 15:28		: changed FADC mapping: sc1 (mid1-ch1), sc2(mid1-ch2), veto (mid2-ch1);
+					: test 2 min run; next run: 2042 / !
+---------------------------------------------------------------------
+- Mar. 7, 16:32		: added beam injection veto to the logic chain, to prevent injection burst; / !
+					: veto removed from the fadc; next run: 2043
+- Mar. 7, 16:??		: Took short run but interrupted due to false alarm
+- Mar. 7, 16:37		: changed FADC RL and jbnu_GW to 16 us; 2 min run; next run: 2045 -> currupted fadc dat
+- Mar. 7, 16:45		: changed FADC RL and jbnu_GW to 8 us; 2 min run; next run: 2046
+- mar. 7, 16:54		: taking 5 min run; next run: 2047 / !
+- Mar. 7, 17:03		: taking 10 min run; next run: 2048
+- Mar. 7, 17:19		: changed FADC RL and jbnu_GW to 16 us; 2 min run; next run: 2049 -> curruped fadc dat
+- Mar. 7, 17:??		: rolled back FADC RL and jbnu_GW to 8 us; 30 min run; next run: 2050 / -> currupted fadc dat
+---------------------------------------------------------------------
+- Mar. 7, 18:21		: changed FADC RL and jbnu_GW to 2 us; FADC delay 200 -> 400; 5 min run; next run: 2051
+- Mar. 7, 18:38		: changed FADC RL to 16 ns; 5 min run; next run: 2052
+- Mar. 7, 18:56		: 10 min run; next run: 2053
+- Mar. 7, 19:20		: 10 min run; next run: 2054 -> currupted fadc
+- Mar. 7, 19:40		: 10 min run; next run: 2055
+- Mar. 7, 19:59		: test flush function in the NKFADC; 1 min run; next run: 2056
+					: -> not the segfault, but nkfadc doesn't take data
+---------------------------------------------------------------------
+- Mar. 7, 20:12		: added " read remaaining data in buffer " to FADC; 1 min run; next run: 2057
+					: one run more... next run: 2058
+					: removed above read remaining data part - it causes dat curruption continually
+- Mar. 7, 20:21		: retry nkfadc flush function; next run: 2058
+					: one more time... next run: 2059 -> 2060??? not works
+- Mar. 7, 20:42		: changed FADC RL to 2 us; 2 min run; next run: 2063 -> dat file currupted
+---------------------------------------------------------------------
+- Mar. 7, 20:47		: power cycled (reset) tcb, fadc, and jbnu_daq; 2 min run; next run: 2064
+					: same setting; next run: 2065
+- Mar. 7, 20:58		: same setting (FADC RL and jbnu_GW 2us); 5 min run; next run: 2066 -> currupted fadc dat
+					: same setting; next run: 2067 -> currupted fadc dat
+- Mar. 7, 21:19		: FADC RL to 512 ns, DLY 400 -> 200; JBNU GW 2 us; 2 min run; next run: 2068
+					: -> currupted fadc dat...
+---------------------------------------------------------------------
