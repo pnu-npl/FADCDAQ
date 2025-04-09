@@ -151,9 +151,9 @@ namespace {
 nullptr
     };
     static const char* includePaths[] = {
-"/home/ckim/work/Study/notice_new_250401/notice_miniTCB_fadc_jbnu_ext/include",
+"/home/ckim/work/Study/notice_new/FADCDAQ/minitcb_fadc_jbnu_ext/include",
 "/home/ckim/installNew/root/include/root",
-"/home/ckim/work/Study/notice_new_250401/notice_miniTCB_fadc_jbnu_ext/src/minitcb_v2/minitcb_v2root/",
+"/home/ckim/work/Study/notice_new/FADCDAQ/minitcb_fadc_jbnu_ext/src/minitcb_v2/minitcb_v2root/",
 nullptr
     };
     static const char* fwdDeclCode = R"DICTFWDDCLS(

@@ -3,6 +3,11 @@ Codes for NOTICE FADC DAQ operation
 
 //-----------------------------------------------
 
+Apr. 9, 2025:
+- minitcb\_fadc\_jbnu\_ext:\
+	a. Added DAQ type recognition function on minitcb (require test)\
+	b. Cleaned up outdated code fragments
+
 Apr. 2, 2025:
 - Items in the inventory\
 	a. DAQ:\
@@ -33,4 +38,3 @@ Apr. 2, 2025:
 	l. Enter the package you're going to use\
 	m. Compile operation codes: use either command "make" or script "./Make.sh"\
 	n. 3 scripts control the operation: INIT.sh (initialization), RUN.sh (running), and STOP.sh
-	

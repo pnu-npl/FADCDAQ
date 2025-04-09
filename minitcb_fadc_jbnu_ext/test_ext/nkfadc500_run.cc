@@ -18,11 +18,11 @@ using namespace std;
 #define CHUNK_SIZE      (DRAM_SIZE*1024)      // array size in kilobyte
 #define DATA_ARRAY_SIZE (DRAM_SIZE*1024*1024) // array size in byte
 
-bool bSTOP = false;
+bool EXTSTOP = false;
 void sigint_handler(int sig)
 {
 	cout<< "SIGINT (FADC): Close\n";
-	bSTOP = true;
+	EXTSTOP = true;
 	return;
 }
 
@@ -32,10 +32,6 @@ int main(int argc, char** argv)
 
 	//Local variables
 	const int runNo  = std::atoi( argv[1] ); //Run ID
-	const int nEvent = std::atoi( argv[2] ); //# of events to take
-	const int tLimit = 0; //Set timeout in seconds: this will slow down the process!
-	if (tLimit > 0) cout <<Form("\nWARNING: %2.1f hour timeout is set!\n", (float)tLimit/3600);
-
 	const int nCh  = 4; //# of channels per FADC module
 	const int nMID = 2; //# of FADC modules
 	const int mID[nMID] = {1, 2}; //FADC modules ID
@@ -69,13 +65,9 @@ int main(int argc, char** argv)
 
 	//-------------------------------------------
 
-	chrono::steady_clock::time_point tStart, tStop;
-	if (tLimit > 0) tStart = chrono::steady_clock::now();
-
-	int tEvent = 1;
 	bool bCountNonzero = false;
 	unsigned long bCount[nMID] = {0};
-	while (bSTOP==false && nEvent!=tEvent) //Take data continually if nEvent = 0
+	while (EXTSTOP == false) //Take data continually if nEvent = 0
 	{
 		bCountNonzero = false;
 		for (int a=0; a<nMID; a++) //Check buffer count
@@ -83,7 +75,7 @@ int main(int argc, char** argv)
 			bCount[a] = nkfadc->NKFADC500read_BCOUNT(mID[a]);
 			if (bCount[a] > 0) bCountNonzero = true;
 		}
-		if (bCountNonzero == false) continue; //usleep(10);
+		if (bCountNonzero == false) continue;
 
 		for (int a=0; a<nMID; a++) //Loop over FADC modules
 		{
@@ -98,31 +90,7 @@ int main(int argc, char** argv)
 				ofStr[a].write(dArray, bCount[a] * 1024);
 			}
 		}
-
-		if (tEvent>0 && tEvent%100==0)
-		{
-			cout <<"Writing... ";
-			for (int a=0; a<nMID; a++) cout <<Form("mID_%i: %3li ", mID[a], bCount[a]);
-			cout <<endl;
-		}
-		if (tLimit > 0)
-		{
-			tStop = chrono::steady_clock::now();
-			int tElapse = chrono::duration_cast<chrono::seconds>(tStop - tStart).count();
-			if (tElapse > tLimit) { cout <<"Timed up: stop.\n";	bSTOP = true; }
-		}
-		tEvent++;
 	}//While
-
-	/*
-	//Added Mar. 7, 2025; Read remaining data
-	printf("NKFADC500: DAQ is stopped and read remaining data\n");
-	for (int a=0; a<nMID; a++) //Loop over FADC modules
-	{
-		nkfadc->NKFADC500read_DATA(mID[a], bCount[a], dArray);
-		ofStr[a].write(dArray, bCount[a] * 1024);
-	}
-	*/
 
 	free(dArray); //Free data array
 	for (int a=0; a<nMID; a++)

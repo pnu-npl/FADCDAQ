@@ -11,43 +11,74 @@
 #include "TH1D.h"
 using namespace std;
 
-int GetDataLength(const char* inFile)
+int GetDataLength(const char* inFilePrx, const int nMID)
 {
-	//Reading 1st event, 1st header (32 bytes fixed), 1st channel's very first four bits will be enough
-	ifstream in;
-	in.open(inFile, std::ios::binary);
-	if (!in.is_open()) { cout <<"GetDataLength - cannot open the file! Stop.\n"; return 1; }
+	//Get data length, check possible curruption
+	unsigned int DLen[100] = {0};
+	for (int a=0; a<nMID; a++)
+	{
+		ifstream in;
+		in.open(Form("%s_%i.dat", inFilePrx, a+1), std::ios::binary);
+		if (!in.is_open())
+		{
+			cout <<Form("\nGetDataLength::cannot open %s_%i.dat, Stop.\n", inFilePrx, a+1);
+			return -999;
+		}
 
-	char data[32];
-	in.read(data, 32);
-	unsigned long dataLength = 0;
-	for (int i=0; i<4; i++) {
-		dataLength += ((ULong_t)(data[4*i+1] & 0xFF) << 8*i);
-		cout<<dataLength<<" | "<<endl;
-	}
+		int errLine = 0;
+		while (in.peek() != EOF)
+		{
+			char data[32];
+			in.read(data, 32);
+			unsigned long dataLength = 0;
+			for (int i=0; i<4; i++) dataLength += ((ULong_t)(data[4*i] & 0xFF) << 8*i);
 
-	in.close();
-	return (int)dataLength;
+			DLen[a] = dataLength;
+			if (DLen[a]<120 || DLen[a]>32800) //ns
+			{
+				errLine++;
+				if (errLine > 5) { cout <<"Manual DLen input is required!\n"; return -999; }
+				cout <<Form("Data curruption is suspected: MID%i, Line%i, %i\n", a, errLine, DLen[a]);
+				string lineskip;
+				std::getline(in, lineskip);
+			}
+			else break;
+		}
+
+		in.close();
+	}//a, nMID
+
+	bool DLenConsistent = true;
+	for (int a=1; a<nMID; a++) if (DLen[0] != DLen[a]) DLenConsistent = false;
+	if (DLenConsistent) return DLen[0];
+	else return -999;
 }//GetDataLength
 
+//int nkfadc500_decode_v2(int runNo, int DLenExt = -999)
 int main(int argc, char** argv)
 {
 	//Setup
 	//-------------------------------------------
 
-	const char* FPath = "data";
-	const char* FName = "FADCData"; //Filname prefix
-	const bool FlipADC = true; //If true flip the ADC to '4095 - ADC'
+	const int runNo   = std::atoi(argv[1]);
+	const int DLenExt = (argc == 3)? std::atoi(argv[2]) : -999;
 
-	const int RunNo = std::atoi(argv[1]);
+	const bool FlipADC = true; //If true, flip the ADC to '4095 - ADC'
 	const int nMID = 2;
 	const int nCh  = 4;
 
-	cout <<Form("Start decoding for %s/%s_%i_*.dat...\n", FPath, FName, RunNo);
+	const char* FPath = "data";
+	const char* FName = Form("FADCData_%i", runNo); //Filname prefix
 
 	//DO NOT FUCKING TOUCH THIS PART OR FACE THE CONSEQUENCE
-	const int DLen = GetDataLength(Form("FADCData_1_60050.dat")); //header (32) + body (vary), per ch
-	if (DLen > 16384) { cout <<"WARNING! Irregular data length detected: stop.\n"; return 0; }
+	//Data length: header (32) + body (vary), per ch, 1024 for 1 us
+	int DLen = GetDataLength(Form("%s/%s", FPath, FName), nMID);
+	if (DLen==-999 && DLenExt==-999)
+	{
+		cout <<"Weird DLen is detected and no manual value provided: stop.\n";
+		return DLen;
+	}
+
 	const int TLen = DLen * nCh; //Total length
 	const int nADC = (DLen - 32)/2; //# of ADC samples per event
 	const int nTDC = nADC/4;
@@ -55,8 +86,10 @@ int main(int argc, char** argv)
 	//ROOT Tree
 	//-------------------------------------------
 
-	TFile* F = new TFile(Form("%s/%s_%i.root", FPath, FName, RunNo), "recreate");
-	TTree* T = new TTree("T", "");
+	//TFile* F = new TFile(Form("%s/%s_%i.root", FPath, FName, runNo), "recreate");
+	TFile* F = new TFile(Form("%s.root", FName), "recreate");
+	TTree* T[nMID];
+	for (int a=0; a<nMID; a++) T[a] = new TTree(Form("T%i", a+1), Form("MID%i", a+1));
 
 	UInt_t  fModuleID[nCh]; //Module ID
 	UInt_t  fChannel[nCh];  //Channel ID
@@ -70,20 +103,26 @@ int main(int argc, char** argv)
 	ULong_t fLocTNum[nCh];  //Local trigger #
 	UInt_t  fADC[nCh][nADC]; //ADC
 	UInt_t  fTDC[nCh][nTDC]; //TDC
+	Bool_t  fCurrupt[nCh];   //Currupted?
 
-	T->Branch("mid",      fModuleID, Form("mid[%i]/i", nCh));
-	T->Branch("ch",       fChannel,  Form("ch[%i]/i", nCh));
-	T->Branch("trigtype", fTrigType, Form("trigtype[%i]/i", nCh));
-	T->Branch("ltrigpat", fLocTPat,  Form("ltrigpat[%i]/i", nCh));
-	T->Branch("ped",      fPed,      Form("ped[%i]/i", nCh));
-	T->Branch("dlength",  fDataLen,  Form("dlength[%i]/l", nCh));
-	T->Branch("dtime",    fDatTime,  Form("dtime[%i]/l", nCh));
-	T->Branch("trignum",  fTrigNum,  Form("trignum[%i]/l", nCh));
-	T->Branch("trigtime", fTrigTime, Form("trigtime[%i]/l", nCh));
-	T->Branch("ltrignum", fLocTNum,  Form("ltrignum[%i]/l", nCh));
-	T->Branch("adc",      fADC,      Form("adc[%i][%i]/i", nCh, nADC));
-	T->Branch("tdc",      fTDC,      Form("tdc[%i][%i]/i", nCh, nTDC));
+	for (int a=0; a<nMID; a++)
+	{
+		T[a]->Branch("mid",      fModuleID, Form("mid[%i]/i", nCh));
+		T[a]->Branch("ch",       fChannel,  Form("ch[%i]/i", nCh));
+		T[a]->Branch("trigtype", fTrigType, Form("trigtype[%i]/i", nCh));
+		T[a]->Branch("ltrigpat", fLocTPat,  Form("ltrigpat[%i]/i", nCh));
+		T[a]->Branch("ped",      fPed,      Form("ped[%i]/i", nCh));
+		T[a]->Branch("dlength",  fDataLen,  Form("dlength[%i]/l", nCh));
+		T[a]->Branch("dtime",    fDatTime,  Form("dtime[%i]/l", nCh));
+		T[a]->Branch("trignum",  fTrigNum,  Form("trignum[%i]/l", nCh));
+		T[a]->Branch("trigtime", fTrigTime, Form("trigtime[%i]/l", nCh));
+		T[a]->Branch("ltrignum", fLocTNum,  Form("ltrignum[%i]/l", nCh));
+		T[a]->Branch("adc",      fADC,      Form("adc[%i][%i]/i", nCh, nADC));
+		T[a]->Branch("tdc",      fTDC,      Form("tdc[%i][%i]/i", nCh, nTDC));
+		T[a]->Branch("currupt",  fCurrupt,  Form("currupt[%i]/O", nCh));
+	}
 
+	#if 1
 	//Read binary and Convert it to ROOT
 	//-------------------------------------------
 
@@ -92,19 +131,38 @@ int main(int argc, char** argv)
 	char dataChop[nCh][DLen];
 	for (int i=0; i<nMID; i++) //FADC modules
 	{
-		in.open(Form("%s/%s_%d_%d.dat", FPath, FName, RunNo, i+1), std::ios::binary);
-		if (!in.is_open()) { cout <<"Cannot open the file! Stop.\n"; return 1; }
+		const char* openFile = Form("%s/%s_%i.dat", FPath, FName, i+1);
+		in.open(openFile, std::ios::binary);
+		if (!in.is_open()) { cout <<Form("Cannot open the file %s: stop.\n", openFile); return 1; }
 
 		unsigned long nLine = 0;
 		while (in.peek() != EOF)
 		{
+			//Reset all ROOT variabels
+			for (int j=0; j<nCh; j++)
+			{
+				fModuleID[j] = -999;
+				fChannel[j]  = -999;
+				fTrigType[j] = -999;
+				fLocTPat[j]  = -999;
+				fPed[j]      = -999;
+				fDataLen[j]  = -999;
+				fDatTime[j]  = -999;
+				fTrigNum[j]  = -999;
+				fTrigTime[j] = -999;
+				fLocTNum[j]  = -999;
+				fCurrupt[j]  = 0;
+				for (int k=0; k<nADC; k++) fADC[j][k] = -999;
+				for (int k=0; k<nADC; k++) fTDC[j][k] = -999;
+			}//j, reset
+
+			//Start reading
 			in.read(data, TLen);
 			if (!in.good())	{ cout <<"Data file is currupted! Stop.\n"; break; }
+			if (nLine>0 && nLine%10000==0) cout <<Form("Processed (MID%i): %lu\n", i+1, nLine);
 
 			for (int j=0; j<nCh; j++)
 			{
-				for (int k=0; k<DLen; k++) dataChop[j][k] = data[j + 4*k];
-
 				/*
 				+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 				Header
@@ -128,8 +186,15 @@ int main(int argc, char** argv)
 				+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 				*/
 
+				for (int k=0; k<DLen; k++) dataChop[j][k] = data[j + 4*k];
+
 				ULong_t tDataLen = 0;
 				for (int a=0; a<4; a++) tDataLen += ((ULong_t)(dataChop[j][a] & 0xFF) << 8*a);
+				if (tDataLen != (ULong_t)DLen)
+				{
+					//cout <<Form("WARNING: irregular data length found: %i\n", tDataLen);
+					fCurrupt[j] = true;
+				}
 
 				UInt_t tTrigType = dataChop[j][6] & 0x0F;
 
@@ -143,7 +208,11 @@ int main(int argc, char** argv)
 
 				UInt_t tModuleID = dataChop[j][15] & 0xFF;
 				UInt_t tChannel  = dataChop[j][16] & 0xFF;
-				if (tChannel<1 || tChannel>4) cout <<Form("WARNING: irregular ch ID found: %i\n", tChannel);
+				if (tChannel<1 || tChannel>4)
+				{
+					//cout <<Form("WARNING: irregular ch ID found: %i\n", tChannel);
+					fCurrupt[j] = true;
+				}
 
 				ULong_t tLocTNum = 0;
 				for (int a=0; a<4; a++) tLocTNum += ( (ULong_t)(dataChop[j][17+a] & 0xFF) << 8*a );
@@ -210,7 +279,6 @@ int main(int argc, char** argv)
 					const int iSmp = 32 + 2*a;
 					UInt_t tADC = (dataChop[j][iSmp] & 0xFF) + ((dataChop[j][iSmp + 1] & 0xF) << 8);
 
-					//if (j==0 || j==2) fADC[j][a] = (4095 - tADC); //TEMPORARY! Aug. 23, 2022
 					if (FlipADC == true) fADC[j][a] = (4095 - tADC);
 					else fADC[j][a] = tADC;
 				}
@@ -226,7 +294,7 @@ int main(int argc, char** argv)
 				}
 			}//j, ch
 
-			T->Fill();
+			T[i]->Fill();
 			nLine++;
 		}//while loop
 
@@ -235,6 +303,8 @@ int main(int argc, char** argv)
 
 	F->Write();
 	F->Close();
+	#endif
 
 	return 0;
 }//Main
+

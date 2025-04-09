@@ -20,8 +20,8 @@ bool Exist(set<int> List, int id)
 //int jbnu_daq_decode(const int RunNo)
 int main(int argc, char** argv)
 {
-    const int RunNo = std::atoi(argv[1]);
-    const char* inFile = Form("data/jbnu_daq_%i_3.dat", RunNo);
+	const int RunNo = std::atoi(argv[1]);
+	const char* inFile = Form("data/jbnu_daq_%i_21.dat", RunNo);
 	cout <<Form("Start decoding for %s...\n", inFile);
 
 	//Get data file size (the size should be < 2 GB)
@@ -39,49 +39,49 @@ int main(int argc, char** argv)
 
 	map<int, long long> map_ltntime; //ckim, local trigger number and its time
 	set<int> set_ltn; //ckim, local trigger number
-	
-    TString inFileName = inFile;
-    inFileName.ReplaceAll("data/", "");
-    inFileName.ReplaceAll("dat", "root");
-    TFile* F = new TFile(inFileName.Data(), "recreate");
-    TTree* T = new TTree("T", "Header");
+
+	TString inFileName = inFile;
+	inFileName.ReplaceAll("data/", "");
+	inFileName.ReplaceAll("dat", "root");
+	TFile* F = new TFile(inFileName.Data(), "recreate");
+	TTree* T = new TTree("T", "Header");
 	TTree* U = new TTree("U", "Spectrum");
 	TTree* V = new TTree("V", "Waveform");
 
-    int t_data_length;
-    int t_run_number;
-    int t_mid;
-    int t_trigger_type;
-    int t_tcb_trigger_number;
-    ULong64_t t_tcb_trigger_time;
-    int t_local_trigger_number;
-    int t_local_trigger_pattern;
-    ULong64_t t_local_gate_time;
-    int u_local_trigger_number;
-    int u_charge[32];
-    int u_timing[32];
-    int u_hitFlag[32];
-    int v_local_trigger_number;
-    int v_channel;
-    int v_wave_length;
-    int v_adc[500];
-    T->Branch("data_length",           &t_data_length,           "data_length/I");
-    T->Branch("run_number",            &t_run_number,            "run_number/I");
-    T->Branch("mid",                   &t_mid,                   "mid/I");
-    T->Branch("trigger_type",          &t_trigger_type,          "trigger_type/I");
-    T->Branch("tcb_trigger_number",    &t_tcb_trigger_number,    "tcb_trigger_number/I");
-    T->Branch("tcb_trigger_time",      &t_tcb_trigger_time,      "tcb_trigger_time/l");
-    T->Branch("local_trigger_number",  &t_local_trigger_number,  "local_trigger_number/I");
-    T->Branch("local_trigger_pattern", &t_local_trigger_pattern, "local_trigger_pattern/I");
-    T->Branch("local_gate_time",       &t_local_gate_time,       "local_gate_time/l");
-    U->Branch("local_trigger_number",  &u_local_trigger_number,  "local_trigger_number/I");
-    U->Branch("charge",                u_charge,                 "charge[32]/I");
-    U->Branch("timing",                u_timing,                 "timing[32]/I");
-    U->Branch("hit_flag",              u_hitFlag,                "hit_flag[32]/I");
-    V->Branch("local_trigger_number",  &v_local_trigger_number,  "local_trigger_number/I");
-    V->Branch("channel",               &v_channel,               "channel/I");
-    V->Branch("wave_length",           &v_wave_length,           "wave_length/I");
-    V->Branch("adc",                   v_adc,                    "adc[wave_length]/I");
+	int t_data_length;
+	int t_run_number;
+	int t_mid;
+	int t_trigger_type;
+	int t_tcb_trigger_number;
+	ULong64_t t_tcb_trigger_time;
+	int t_local_trigger_number;
+	int t_local_trigger_pattern;
+	ULong64_t t_local_gate_time;
+	int u_local_trigger_number;
+	int u_charge[32];
+	int u_timing[32];
+	int u_hitFlag[32];
+	int v_local_trigger_number;
+	int v_channel;
+	int v_wave_length;
+	int v_adc[500];
+	T->Branch("data_length",           &t_data_length,           "data_length/I");
+	T->Branch("run_number",            &t_run_number,            "run_number/I");
+	T->Branch("mid",                   &t_mid,                   "mid/I");
+	T->Branch("trigger_type",          &t_trigger_type,          "trigger_type/I");
+	T->Branch("tcb_trigger_number",    &t_tcb_trigger_number,    "tcb_trigger_number/I");
+	T->Branch("tcb_trigger_time",      &t_tcb_trigger_time,      "tcb_trigger_time/l");
+	T->Branch("local_trigger_number",  &t_local_trigger_number,  "local_trigger_number/I");
+	T->Branch("local_trigger_pattern", &t_local_trigger_pattern, "local_trigger_pattern/I");
+	T->Branch("local_gate_time",       &t_local_gate_time,       "local_gate_time/l");
+	U->Branch("local_trigger_number",  &u_local_trigger_number,  "local_trigger_number/I");
+	U->Branch("charge",                u_charge,                 "charge[32]/I");
+	U->Branch("timing",                u_timing,                 "timing[32]/I");
+	U->Branch("hit_flag",              u_hitFlag,                "hit_flag[32]/I");
+	V->Branch("local_trigger_number",  &v_local_trigger_number,  "local_trigger_number/I");
+	V->Branch("channel",               &v_channel,               "channel/I");
+	V->Branch("wave_length",           &v_wave_length,           "wave_length/I");
+	V->Branch("adc",                   v_adc,                    "adc[wave_length]/I");
 
 	//----------------------------------------------------------
 
@@ -132,23 +132,23 @@ int main(int argc, char** argv)
 
 		int wave_length = (data_length - 32) / 2;
 
-        #if 0
+#if 0
 		cout <<endl;
-        cout <<"mid: " <<mid <<endl;
-        cout <<"channel: " <<channel <<endl;
-        cout <<"run_number: " <<run_number <<endl;
-        cout <<"data_length: " <<data_length <<endl;
-        cout <<"trigger_type: " <<trigger_type <<endl;
-        cout <<"tcb_trigger_number: " <<tcb_trigger_number <<endl;
-        cout <<"tcb_trigger_fine_time: " <<tcb_trigger_fine_time <<endl;
-        cout <<"tcb_trigger_coarse_time: " <<tcb_trigger_coarse_time <<endl;
-        cout <<"tcb_trigger_time: " <<tcb_trigger_time <<endl;
-        cout <<"local_trigger_number: " <<local_trigger_number <<endl;
-        cout <<"local_trigger_pattern: " <<local_trigger_pattern <<endl;
-        cout <<"local_gate_fine_time: " <<local_gate_fine_time <<endl;
-        cout <<"local_gate_coarse_time: " <<local_gate_coarse_time <<endl;
-        cout <<"local_gate_time: " <<local_gate_time <<endl;
-        #endif
+		cout <<"mid: " <<mid <<endl;
+		cout <<"channel: " <<channel <<endl;
+		cout <<"run_number: " <<run_number <<endl;
+		cout <<"data_length: " <<data_length <<endl;
+		cout <<"trigger_type: " <<trigger_type <<endl;
+		cout <<"tcb_trigger_number: " <<tcb_trigger_number <<endl;
+		cout <<"tcb_trigger_fine_time: " <<tcb_trigger_fine_time <<endl;
+		cout <<"tcb_trigger_coarse_time: " <<tcb_trigger_coarse_time <<endl;
+		cout <<"tcb_trigger_time: " <<tcb_trigger_time <<endl;
+		cout <<"local_trigger_number: " <<local_trigger_number <<endl;
+		cout <<"local_trigger_pattern: " <<local_trigger_pattern <<endl;
+		cout <<"local_gate_fine_time: " <<local_gate_fine_time <<endl;
+		cout <<"local_gate_coarse_time: " <<local_gate_coarse_time <<endl;
+		cout <<"local_gate_time: " <<local_gate_time <<endl;
+#endif
 
 		//cout <<Form("%i %i %s\n", local_trigger_number, channel, channel==0?"":"!");
 
@@ -236,7 +236,7 @@ int main(int argc, char** argv)
 	fclose(fp);
 	F->Write();
 	F->Close();
-    gSystem->Exec(Form("mv %s ./data", inFileName.Data()));
+	gSystem->Exec(Form("mv %s ./data", inFileName.Data()));
 
 	return 0;
 }//Main

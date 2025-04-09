@@ -19,7 +19,7 @@ void jbnu_daq_draw(int runNo, int evtCheck = -1, bool PRINT = false)
 	const int nCh = 32;
 	const int nSmpMax = 1000;
 
-	#if 1
+#if 1
 	// Get pedestal
 	float pedVal[nCh] = {0};
 	float pedErr[nCh] = {0};
@@ -27,7 +27,7 @@ void jbnu_daq_draw(int runNo, int evtCheck = -1, bool PRINT = false)
 	//jbnu_daq_pedestal(inFilePed, pedVal, pedErr, 0);
 	//for (int a=0; a<nCh; a++) cout <<Form("ch%02i ped: %7.4f +/- %6.4f\n", a+1, pedVal[a], pedErr[a]*3);
 	for (int a=0; a<nCh; a++) pedErr[a] = 50;
-	#endif
+#endif
 
 	map<int, int> chMap = jbnu_daq_mapper();
 
@@ -71,14 +71,14 @@ void jbnu_daq_draw(int runNo, int evtCheck = -1, bool PRINT = false)
 	// Containers
 	//---------------------------------------------------------------
 
-	#if 1
+#if 1
 	T->GetEntry(nEventsT-1);
 	const int nTrig = t_tcb_trigger_number + 1;
 	TH2F* H1_trigtime = new TH2F("TrigTime", ";iTrig;trigTime", nTrig,0,nTrig, 200,0,2*1.E10);
 	T->Project(H1_trigtime->GetName(), "tcb_trigger_time:tcb_trigger_number", "");
 	TCanvas* c0 = new TCanvas("c0", "", 800*1.3, 600*1.3); c0->cd(1);
 	H1_trigtime->SetStats(false); H1_trigtime->DrawCopy("colz");
-	#endif
+#endif
 
 	V->GetEntry(0);
 	const float nWave = v_wave_length;
