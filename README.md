@@ -3,6 +3,9 @@ Codes for NOTICE FADC DAQ operation
 
 //-----------------------------------------------
 
+Apr. 10, 2025:
+- Removed DAQ type recognition function (doesn't work)
+
 Apr. 9, 2025:
 - minitcb\_fadc\_jbnu\_ext:\
 	a. Added DAQ type recognition function on minitcb (require test)\

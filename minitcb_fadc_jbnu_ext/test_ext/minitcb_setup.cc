@@ -4,24 +4,11 @@
 #include <fstream>
 #include <getopt.h>
 #include <iostream>
+#include <vector>
 
 #include "TROOT.h"
 #include "NoticeMINITCB_V2ROOT.h"
 using namespace std;
-
-int GetIdProduct(void)
-{
-	const char* NKFADC500 = "lsusb -d 0547:1502";
-	const char* JBNU_DAQ  = "lsusb -d 0547:2209";
-	const char* BIC_DAQ   = "lsusb -d 0547:2503";
-
-	if      ( system(NKFADC500) == 0 ) return 1502;
-	else if ( system(JBNU_DAQ)  == 0 ) return 2209;
-	else if ( system(BIC_DAQ)   == 0 ) return 2503;
-	else cout <<"GetIdProduct: unknown type of DAQ!\n";
-
-	return -999;
-}//GetIdProduct
 
 int main(int argc, char** argv)
 {
@@ -243,14 +230,11 @@ int main(int argc, char** argv)
 		}
 
 		mMIDValue[i] = tcb->MINITCB_V2read_MIDS(tcp_Handle, i+1); //mID and its ch starts from 1
-		const int idProduct = GetIdProduct(); //Apr. 9, 2025
-		if (idProduct == -999) continue;
-
 		unsigned long fMID = mMIDValue[i];
 		tcb->MINITCB_V2reset(tcp_Handle);
 
 		//minitcb
-		printf("MINITCB_V2\n");
+		printf("\nMINITCB_V2\n");
 		printf("- %-25s: %ld\n", "Coincidence width", tcb->MINITCB_V2read_CW(tcp_Handle,0,1));
 		printf("- %-25s: %ld\n", "Multiplicity threshold", tcb->MINITCB_V2read_MTHR(tcp_Handle));
 		printf("- %-25s: %ld\n", "Prescale on trig input", tcb->MINITCB_V2read_PSCALE(tcp_Handle));
@@ -260,7 +244,7 @@ int main(int argc, char** argv)
 		//FADC
 		//-----------------------------------
 
-		if (idProduct == 1502) //NKFADC500
+		if (i < 2) //NKFADC500
 		{
 			printf("\nNKFADC500 (mID: %ld) found @ minitcb %d \n", mMIDValue[i], i+1);
 			tcb->MINITCB_V2write_CW        (tcp_Handle, 0, 1, tCW);
@@ -340,9 +324,9 @@ int main(int argc, char** argv)
 
 		//+++++++++++++++++++++++++++++++++++++++
 
-		if (idProduct == 2209) //JBNU_DAQ
+		if (i == 2) //JBNU_DAQ
 		{
-			const int mid = 3;
+			const int mid = 21;
 			printf("\nJBNU_DAQ (mID: %d) found @ minitcb %d \n", mid, i+1);
 
 			// write setting
@@ -407,6 +391,6 @@ int main(int argc, char** argv)
 	tcb->MINITCB_V2write_RUNNO(tcp_Handle, mRunNumber);
 	tcb->MINITCB_V2close(tcp_Handle);
 
-	cout <<"\nTCB/FADC initialized!\n\n";
+	cout <<"\nInitialization finished!\n\n";
 	return 0;
 }//Main
