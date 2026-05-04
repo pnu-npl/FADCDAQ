@@ -13,13 +13,14 @@ using namespace std;
 void jbnu_daq_pedestal(const char* inFile, float* pedVal, float* pedErr, bool Show = false);
 void jbnu_daq_waveform(TH2F* H2[32], int runNo, int evt = -1, bool PRINT = false);
 map<int, int> jbnu_daq_mapper(void);
+map<int, float> jbnu_daq_gain(map<int, int>chMap, int runNoCalib);
 
-void jbnu_daq_draw(int runNo, int evtCheck = -1, bool PRINT = false)
+void jbnu_daq_draw(int runNo, int mid = 21, int evtCheck = -1, bool PRINT = false)
 {
 	const int nCh = 32;
 	const int nSmpMax = 1000;
 
-#if 1
+	#if 1
 	// Get pedestal
 	float pedVal[nCh] = {0};
 	float pedErr[nCh] = {0};
@@ -27,14 +28,15 @@ void jbnu_daq_draw(int runNo, int evtCheck = -1, bool PRINT = false)
 	//jbnu_daq_pedestal(inFilePed, pedVal, pedErr, 0);
 	//for (int a=0; a<nCh; a++) cout <<Form("ch%02i ped: %7.4f +/- %6.4f\n", a+1, pedVal[a], pedErr[a]*3);
 	for (int a=0; a<nCh; a++) pedErr[a] = 50;
-#endif
+	#endif
 
 	map<int, int> chMap = jbnu_daq_mapper();
+	map<int, float> gainMap = jbnu_daq_gain(chMap, 0);
 
 	// Open file
 	//---------------------------------------------------------------
 
-	const char* inFile = Form("./data/jbnu_daq_%i_3.root", runNo);
+	const char* inFile = Form("data/jbnu_daq_%i_%i.root", runNo, mid);
 	TFile* F = TFile::Open(inFile);
 	TTree* T = (TTree*)F->Get("T"); //Header
 	TTree* V = (TTree*)F->Get("V"); //Waveform
@@ -71,14 +73,12 @@ void jbnu_daq_draw(int runNo, int evtCheck = -1, bool PRINT = false)
 	// Containers
 	//---------------------------------------------------------------
 
-#if 1
 	T->GetEntry(nEventsT-1);
 	const int nTrig = t_tcb_trigger_number + 1;
 	TH2F* H1_trigtime = new TH2F("TrigTime", ";iTrig;trigTime", nTrig,0,nTrig, 200,0,2*1.E10);
 	T->Project(H1_trigtime->GetName(), "tcb_trigger_time:tcb_trigger_number", "");
-	TCanvas* c0 = new TCanvas("c0", "", 800*1.3, 600*1.3); c0->cd(1);
+	TCanvas* c0 = new TCanvas("c0", "", 1600, 900); c0->cd(1);
 	H1_trigtime->SetStats(false); H1_trigtime->DrawCopy("colz");
-#endif
 
 	V->GetEntry(0);
 	const float nWave = v_wave_length;
@@ -113,7 +113,11 @@ void jbnu_daq_draw(int runNo, int evtCheck = -1, bool PRINT = false)
 		}
 		if (isHit == false) continue;
 
-		for (int b=0; b<v_wave_length; b++) H2_waveform[ch]->SetBinContent(ltn+1, b+1, v_adc[b]);
+		for (int b=0; b<v_wave_length; b++)
+		{
+			const float adc_calib = gainMap[ch+1] * v_adc[b];
+			H2_waveform[ch]->SetBinContent(ltn+1, b+1, adc_calib);
+		}
 	}//a
 
 	jbnu_daq_waveform(H2_waveform, runNo, evtCheck);
@@ -189,7 +193,7 @@ void jbnu_daq_waveform(TH2F* H2[32], int runNo, int evt, bool PRINT)
 	TCanvas* c2[2];
 	for (int a=0; a<2; a++)
 	{
-		c2[a] = new TCanvas(Form("c2_%i", a), "", 1600*0.8, 900*0.8);
+		c2[a] = new TCanvas(Form("c2_%i", a), "", 1600, 900);
 		c2[a]->SetTitle(Form("Waveform, ch%i - ch%i", a==0?1:17, a==0?16:32));
 		c2[a]->Divide(4, 4);
 	}
@@ -295,3 +299,44 @@ map<int, int> jbnu_daq_mapper(void)
 
 	return chMap;
 }//map
+
+//===============================================================
+map<int, float> jbnu_daq_gain(map<int, int>chMap, int runNoCalib)
+{
+	// Doing channel alignment here
+	map<int, float> gainMap;
+
+	// Default
+	const int nCh = chMap.size();
+	for (int a=0; a<nCh; a++) gainMap.insert( std::pair<int, int> (a+1, 1.0) );
+
+	ifstream in;
+	in.open(Form("jbnu_daq_gain_run%i.txt", runNoCalib));
+	if (!in.is_open())
+	{
+		cout <<Form("Cannot find the calibration run %i! Applying deafult (1.0)...\n", runNoCalib);
+		return gainMap;
+	}
+	else
+	{
+		cout <<Form("Get new calibration factors from run %i...\n", runNoCalib);
+		gainMap.clear();
+
+		int chOrig = -1;
+		int chTrue = -1;
+		float calibF = 0.;
+
+		while (1)
+		{
+			if (!in.good()) break;
+
+			in >> chOrig >> calibF;
+			chTrue = chMap[chOrig];
+			gainMap.insert( std::pair<int, float> (chTrue, calibF) );
+
+			cout <<chOrig <<" (True: " <<chTrue <<") " << calibF <<endl;
+		}
+	}//Get new gain
+
+	return gainMap;
+}//gain
