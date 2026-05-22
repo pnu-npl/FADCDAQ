@@ -3,6 +3,7 @@
 #include "TTree.h"
 #include "TBranch.h"
 #include "TString.h"
+#include "TStyle.h"
 #include "TF1.h"
 #include "TH1.h"
 #include "TH2.h"
@@ -115,8 +116,8 @@ void jbnu_daq_calib(int runNo = 0, int mid = 21, bool Show = false)
 	}
 
 	// Normalize MPV values by pol0 fit
-	TH1F* H1_mpv = new TH1F("H1_mpv", "", nCh,0,nCh);
-	H1_mpv->SetTitle(Form("run%i response (nomalized by pol0 fit);ch;mpv", runNo));
+	TH1F* H1_mpv = new TH1F("H1_mpv", "", nCh, 0, nCh);
+	H1_mpv->SetTitle(Form("run%i response (nomalized by pol0 fit);channel;mpv", runNo));
 	H1_mpv->Sumw2();
 	TF1* F1_mpv = new TF1 ("F1_mpv", "pol0", 0, nCh);
 	for (int a=0; a<nCh; a++)
@@ -126,6 +127,14 @@ void jbnu_daq_calib(int runNo = 0, int mid = 21, bool Show = false)
 	}
 	H1_mpv->Fit(F1_mpv->GetName(), "EQR0", "kRed", 0, nCh);
 	H1_mpv->Scale(1./F1_mpv->GetParameter(0));
+
+	TH1F* H1_mpv_dev = new TH1F("H1_mpv_dev", ";mpv;Entries", 30, 0.98, 1.04);
+	H1_mpv_dev->Sumw2();
+	for (int a=0; a<H1_mpv->GetNbinsX(); a++)
+	{
+		const float mpv_val = H1_mpv->GetBinContent(a+1);
+		H1_mpv_dev->Fill(mpv_val);
+	}
 
 	// Printout calibration factors
 	ofstream out;
@@ -137,8 +146,9 @@ void jbnu_daq_calib(int runNo = 0, int mid = 21, bool Show = false)
 	// Draw
 	//---------------------------------------------------------------
 
-	if (Show)
+	//if (Show)
 	{
+		/*
 		TCanvas* c1[2];
 		for (int a=0; a<2; a++)
 		{
@@ -173,11 +183,80 @@ void jbnu_daq_calib(int runNo = 0, int mid = 21, bool Show = false)
 			}
 			c2[a]->Print(Form("%s.png", c2[a]->GetName()));
 		}//a
+		*/
 
-		TCanvas* c3 = new TCanvas("c3", "", 1600, 900);
-		H1_mpv->SetStats(false);
-		H1_mpv->DrawCopy("hist e text0");
+		/*
+		TCanvas* c3 = new TCanvas("c3_ch15", "", 1600*1.2, 900*1.2);
+		c3->Divide(2, 1);
+		c3->cd(1)->SetMargin(0.135, 0.135, 0.135, 0.135);
+		H2_waveform[14]->GetXaxis()->SetRangeUser(0, 1001);
+		H2_waveform[14]->GetXaxis()->SetTitleSize(0.04);
+		H2_waveform[14]->GetYaxis()->SetTitleSize(0.04);
+		H2_waveform[14]->SetStats(false);
+		H2_waveform[14]->SetTitle("Channel 15;Trigger index;Sampling index");
+		H2_waveform[14]->DrawCopy("colz");
+		c3->cd(2)->SetMargin(0.135, 0.135, 0.135, 0.135);
+		TH1F* H1_waveform14 = (TH1F*)H2_waveform[14]->ProjectionY();
+		H1_waveform14->SetLineColor(1);
+		H1_waveform14->SetLineWidth(2);
+		H1_waveform14->SetStats(false);
+		H1_waveform14->SetTitle("Channel 15 (accumulated);Sampling index;Entries");
+		H1_waveform14->DrawCopy("hist e");
+		TF1* F1_waveform14 = new TF1("F1_wavefrom14", "landau", 42, 55);
+		F1_waveform14->SetParameters(12000, 50, 2);
+		F1_waveform14->SetLineColor(2);
+		F1_waveform14->SetLineStyle(2);
+		F1_waveform14->SetLineWidth(2);
+		H1_waveform14->Fit(F1_waveform14->GetName(), "ER0", "kRed", 42, 55);
+		F1_waveform14->Draw("same");
 		c3->Print(Form("%s.png", c3->GetName()));
+		c3->Print(Form("%s.eps", c3->GetName()));
+		c3->Print(Form("%s.pdf", c3->GetName()));
+		*/
+
+		gStyle->SetPaintTextFormat("4.3f");
+		TCanvas* c4 = new TCanvas("c4_response", "", 1600*1.2, 900*1.2);
+		c4->Divide(2, 1);
+		c4->cd(1);
+		gPad->SetLeftMargin(0.125);
+		gPad->SetRightMargin(0.075);
+		H1_mpv->SetTitle("Response");
+		H1_mpv->GetYaxis()->SetRangeUser(0.98, 1.04);
+		H1_mpv->GetXaxis()->SetTitleSize(0.045);
+		H1_mpv->GetYaxis()->SetTitleSize(0.045);
+		H1_mpv->SetStats(false);
+		H1_mpv->SetLineColor(1);
+		H1_mpv->SetLineWidth(2);
+		H1_mpv->DrawCopy("hist e");// text45");
+		TLine* L1 = new TLine(0, 1, 32, 1);
+		L1->SetLineColor(2);
+		L1->SetLineWidth(2);
+		L1->SetLineStyle(2);
+		L1->Draw();
+		c4->cd(2);
+		H1_mpv_dev->SetTitle("Response (deviation)");
+		H1_mpv_dev->GetXaxis()->SetTitleSize(0.045);
+		H1_mpv_dev->GetYaxis()->SetTitleSize(0.045);
+		H1_mpv_dev->SetStats(false);
+		H1_mpv_dev->SetLineColor(1);
+		H1_mpv_dev->SetLineWidth(2);
+		H1_mpv_dev->DrawCopy("hist");
+		TLine* L2 = new TLine(1, 0, 1, H1_mpv_dev->GetMaximum()*1.05);
+		L2->SetLineColor(2);
+		L2->SetLineWidth(2);
+		L2->SetLineStyle(2);
+		L2->Draw();
+		TLegend* Leg = new TLegend(0.45, 0.70, 0.9, 0.85);
+		Leg->SetLineWidth(0);
+		Leg->SetFillColor(0);
+		Leg->SetFillStyle(0);
+		Leg->AddEntry((TObject*)0, Form("- Entries: %1.0f", H1_mpv_dev->GetEntries()), "");
+		Leg->AddEntry((TObject*)0, Form("- Mean: %4.3f", H1_mpv_dev->GetMean()), "");
+		Leg->AddEntry((TObject*)0, Form("- Std Dev: %4.3f", H1_mpv_dev->GetRMS()), "");
+		Leg->Draw("same");
+		//c4->Print(Form("%s.eps", c4->GetName()));
+		//c4->Print(Form("%s.pdf", c4->GetName()));
+		//c4->Print(Form("%s.png", c4->GetName()));
 	}//Show
 
 	return;

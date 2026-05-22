@@ -20,7 +20,6 @@ void jbnu_daq_draw(int runNo, int mid = 21, int evtCheck = -1, bool PRINT = fals
 	const int nCh = 32;
 	const int nSmpMax = 1000;
 
-	#if 1
 	// Get pedestal
 	float pedVal[nCh] = {0};
 	float pedErr[nCh] = {0};
@@ -28,7 +27,6 @@ void jbnu_daq_draw(int runNo, int mid = 21, int evtCheck = -1, bool PRINT = fals
 	//jbnu_daq_pedestal(inFilePed, pedVal, pedErr, 0);
 	//for (int a=0; a<nCh; a++) cout <<Form("ch%02i ped: %7.4f +/- %6.4f\n", a+1, pedVal[a], pedErr[a]*3);
 	for (int a=0; a<nCh; a++) pedErr[a] = 50;
-	#endif
 
 	map<int, int> chMap = jbnu_daq_mapper();
 	map<int, float> gainMap = jbnu_daq_gain(chMap, 0);
@@ -333,8 +331,7 @@ map<int, float> jbnu_daq_gain(map<int, int>chMap, int runNoCalib)
 			in >> chOrig >> calibF;
 			chTrue = chMap[chOrig];
 			gainMap.insert( std::pair<int, float> (chTrue, calibF) );
-
-			cout <<chOrig <<" (True: " <<chTrue <<") " << calibF <<endl;
+			cout <<Form("%2i (True: %2i): %4.3f\n", chOrig, chTrue, calibF);
 		}
 	}//Get new gain
 
