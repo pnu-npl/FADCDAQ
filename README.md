@@ -3,11 +3,18 @@ Codes for NOTICE FADC DAQ operation
 
 //-----------------------------------------------
 
+June 22, 2026:
+- Corrected logical error of calibration code (re-wrote)
+
+May 22, 2026:
+- Added and updated plot cosmetics (for JKPS paper)
+
 May 4, 2026:
 - Added calibration code under minitcb\_fadc\_jbnu\_ext/test\_ext (jbnu\_daq\_calib.C):\
 	a. It takes decoded root file as a input\
 	b. It makes readable calibration factors for all 32 channels (e.g., jbnu_daq_gain_run0.txt)\
-	c. Sample data (data/jbnu_daq_0_21.root) was taken from KEK, at May 2025
+	c. Sample data (data/jbnu_daq_0_21.root) was taken from KEK, at May 2025\
+	d. The calibration factors are applied in the jbnu_daq_draw.C
 
 Apr. 10, 2025:
 - Removed DAQ type recognition function (doesn't work)
